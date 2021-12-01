@@ -31,6 +31,10 @@ function handleSubmit(event) {
     const inputValue = input.value;
     socket.send(makeMessage("new_message", inputValue));
 
+    const li = document.createElement("li");
+    li.innerText = `Me : ${inputValue}`;
+    messageList.append(li);
+
     input.value = "";
 }
 
