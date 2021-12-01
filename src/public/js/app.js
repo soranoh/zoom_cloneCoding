@@ -6,8 +6,8 @@ const welcomeForm = welcomeDiv.querySelector("form");
 function handleRoomSubmit(event) {
     event.preventDefault();
     const input = welcomeForm.querySelector("input");
-    socket.emit("enterRoom", {payload: input.value}, () => {
-        console.log("server is done!");
+    socket.emit("enterRoom", input.value, (msg) => {
+        console.log(`The Backend's Message : `, msg);
     });
 
     input.value = "";
