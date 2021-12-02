@@ -10,11 +10,11 @@ let roomName;
 roomDiv.hidden = true;
 
 
-function showRoom() {
+function showRoom(cnt) {
     welcomeDiv.hidden = true;
     roomDiv.hidden = false;
     const h3 = roomDiv.querySelector("h3");
-    h3.innerText = `Room [${roomName}]`;
+    h3.innerText = `Room [${roomName}] (${cnt})`;
 
     const messageForm = roomDiv.querySelector("#msg");
     messageForm.addEventListener("submit", handleMessageSubmit);
@@ -63,11 +63,15 @@ welcomeForm.addEventListener("submit", handleRoomSubmit);
 nameForm.addEventListener("submit", handleNicknameSubmit);
 
 
-socket.on("welcome", (user) => {
+socket.on("welcome", (user, count) => {
+    const h3 = roomDiv.querySelector("h3");
+    h3.innerText = `Room [${roomName}] (${count})`;
     addMessage(`${user} joined!`);
 });
 
-socket.on("bye", (user) => {
+socket.on("bye", (user, count) => {
+    const h3 = roomDiv.querySelector("h3");
+    h3.innerText = `Room [${roomName}] (${count})`;
     addMessage(`${user} left`);
 });
 

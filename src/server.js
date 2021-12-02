@@ -34,6 +34,10 @@ function publicRooms() {
    return publicRooms;
 }
 
+function countUser(roomName) {
+    return wsServer.sockets.adapter.rooms.get(roomName)?.size;
+}
+
 wsServer.on("connection", (socket) => {
     socket["nickname"] = "Anon";
     socket.onAny((event) => {
@@ -41,7 +45,7 @@ wsServer.on("connection", (socket) => {
     });
     socket.on("disconnecting", () => {
         socket.rooms.forEach((room) => {
-            socket.to(room).emit("bye", socket.nickname);
+            socket.to(room).emit("bye", socket.nickname, countUser(room)-1);
         });
     });
     socket.on("disconnect", () => {
@@ -49,10 +53,10 @@ wsServer.on("connection", (socket) => {
     });
     socket.on("enterRoom", (roomName, done) => {
         socket.join(roomName);
-        done();
+        done(countUser(roomName));
         //socket.to(A).emit => A라는 하나의 socket에게만 메세지 전달
         //server.sockets.emit() => 서버에 연결된 모든 socket에게 메세지 전달
-        socket.to(roomName).emit("welcome", socket.nickname);
+        socket.to(roomName).emit("welcome", socket.nickname, countUser(roomName));
         wsServer.sockets.emit("roomChange", publicRooms());
     });
     socket.on("newMessage", (roomName, message, done) => {
