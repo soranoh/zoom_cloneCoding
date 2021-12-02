@@ -18,10 +18,19 @@ wsServer.on("connection", (socket) => {
     socket.onAny((event) => {
         console.log(`Socket Event : ${event}`);
     });
+    socket.on("disconnecting", () => {
+        socket.rooms.forEach((room) => {
+            socket.to(room).emit("bye");
+        });
+    });
     socket.on("enterRoom", (roomName, done) => {
         socket.join(roomName);
         done();
         socket.to(roomName).emit("welcome");
+    });
+    socket.on("new_message", (roomName, message, done) => {
+        socket.to(roomName).emit("new_message", message);
+        done();
     });
 });
 
