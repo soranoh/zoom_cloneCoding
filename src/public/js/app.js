@@ -10,6 +10,7 @@ let myStream;
 let muted = false;
 let cameraOff = false;
 let roomName;
+let myPeerConnection;
 
 callDiv.hidden = true;
 
@@ -110,10 +111,11 @@ camerasSelect.addEventListener("input", handleCameraChange);
 const welcomeDiv = document.getElementById("welcome");
 const welcomeForm = welcomeDiv.querySelector("form");
 
-function startMedia() {
+async function startMedia() {
     welcomeDiv.hidden = true;
     callDiv.hidden = false;
-    getMedia();
+    await getMedia();
+    makeConnection();
 }
 
 function handleWelcomeSubmit(event) {
@@ -131,6 +133,27 @@ welcomeForm.addEventListener("submit", handleWelcomeSubmit);
 // ######## Socket Code Area #########
 // ###################################
 
-socket.on("welcome", () => {
-    console.log("someone joined");
+socket.on("welcome", async () => {
+    const offer = await myPeerConnection.createOffer();
+    myPeerConnection.setLocalDescription(offer);
+    console.log("Send the Offer");
+    socket.emit("offer", roomName, offer);
 });
+
+socket.on("offer", (offer) => {
+    console.log(offer);
+});
+
+
+// ###################################
+// ######### RTC Code Area ###########
+// ###################################
+
+function makeConnection() {
+    myPeerConnection = new RTCPeerConnection();
+    myStream
+        .getTracks()
+        .forEach((track) => 
+        myPeerConnection.addTrack(track, myStream));
+
+}
