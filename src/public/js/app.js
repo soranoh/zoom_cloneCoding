@@ -4,10 +4,14 @@ const myFace = document.getElementById("myFace");
 const muteBtn = document.getElementById("mute");
 const cameraBtn = document.getElementById("camera");
 const camerasSelect = document.getElementById("cameras");
+const callDiv = document.getElementById("call");
 
 let myStream;
 let muted = false;
 let cameraOff = false;
+let roomName;
+
+callDiv.hidden = true;
 
 async function getCameras() {
     try {
@@ -94,8 +98,39 @@ async function handleCameraChange() {
     await getMedia(camerasSelect.value);
 }
 
-getMedia();
-
 muteBtn.addEventListener("click", handleMuteClick);
 cameraBtn.addEventListener("click", handleCameraClick);
 camerasSelect.addEventListener("input", handleCameraChange);
+
+
+// ###################################
+// ######## Welcome Form Area ########
+// ###################################
+
+const welcomeDiv = document.getElementById("welcome");
+const welcomeForm = welcomeDiv.querySelector("form");
+
+function startMedia() {
+    welcomeDiv.hidden = true;
+    callDiv.hidden = false;
+    getMedia();
+}
+
+function handleWelcomeSubmit(event) {
+    event.preventDefault();
+    const input = welcomeForm.querySelector("input");
+    roomName = input.value
+    socket.emit("joinRoom", roomName, startMedia);
+    input.value = "";
+}
+
+welcomeForm.addEventListener("submit", handleWelcomeSubmit);
+
+
+// ###################################
+// ######## Socket Code Area #########
+// ###################################
+
+socket.on("welcome", () => {
+    console.log("someone joined");
+});
